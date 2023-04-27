@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from 'components/App';
+import App from 'components/App';
 // jsconfig.json настроен чтобы писать все импорты относительно
 // папки src (например: import { App } from 'components/App')
 import './index.css';

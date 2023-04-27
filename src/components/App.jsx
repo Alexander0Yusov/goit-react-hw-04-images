@@ -1,9 +1,9 @@
-import { Component } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Vortex } from 'react-loader-spinner';
 import { ApiService } from 'scripts';
-import { Searchbar } from './Searchbar/Searchbar';
-import { ImageGallery } from './ImageGallery/ImageGallery';
-import { Button } from './Button/Button';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
 
 const statusCode = {
   IDLE: 'idle',
@@ -13,100 +13,98 @@ const statusCode = {
   DONE: 'done',
 };
 
-export class App extends Component {
-  state = {
-    queryInput: '',
-    hits: [],
-    total: null,
-    api: null,
-    status: statusCode.IDLE,
-  };
+const App = () => {
+  const [queryInput, setQueryInput] = useState('');
+  const [hits, setHits] = useState([]);
+  const [total, setTotal] = useState(null);
+  const [status, setStatus] = useState(statusCode.IDLE);
 
-  handleSubmit = async e => {
+  const Api = useRef(null);
+
+  useEffect(() => {
+    if (queryInput === '') {
+      return;
+    }
+    getInfo();
+  }, [queryInput]);
+
+  const handleSubmit = e => {
     e.preventDefault();
-    await this.setState({ queryInput: e.target.input.value });
-    await this.getInfo();
+    setQueryInput(e.target.input.value);
   };
 
-  setStatus(statusCode) {
-    this.setState({ status: statusCode });
-  }
+  const getInfo = () => {
+    Api.current = new ApiService(queryInput);
+    setStatus(statusCode.PENDING);
 
-  getInfo = () => {
-    const Api = new ApiService(this.state.queryInput);
-    this.setState({ api: Api });
-    this.setStatus(statusCode.PENDING);
-
-    Api.request()
+    Api.current
+      .request()
       .then(({ hits, total }) => {
-        Api.calculatePages(total);
-        this.setState({ hits, total });
-        this.setStatus(statusCode.RESOLVED);
+        Api.current.calculatePages(total);
+        setHits(hits);
+        setTotal(total);
+        setStatus(statusCode.RESOLVED);
       })
       .catch(er => {
-        this.setStatus(statusCode.ERROR);
+        setStatus(statusCode.ERROR);
         console.log(er.message);
       })
-      .finally(() => this.setStatus(statusCode.DONE));
+      .finally(() => setStatus(statusCode.DONE));
   };
 
-  getMoreInfo = () => {
-    const Api = this.state.api;
-    this.setStatus(statusCode.PENDING);
+  const getMoreInfo = () => {
+    setStatus(statusCode.PENDING);
 
-    Api.nextPage();
-    Api.request()
+    Api.current.nextPage();
+    Api.current
+      .request()
       .then(({ hits }) => {
-        this.setState(prev => {
-          return { hits: [...prev.hits, ...hits] };
-        });
-        this.setStatus(statusCode.RESOLVED);
+        setHits(prev => [...prev, ...hits]);
+        setStatus(statusCode.RESOLVED);
       })
       .catch(er => {
-        this.setStatus(statusCode.ERROR);
+        setStatus(statusCode.ERROR);
         console.log(er.message);
       })
-      .finally(() => this.setStatus(statusCode.DONE));
+      .finally(() => setStatus(statusCode.DONE));
   };
 
-  render() {
-    const { hits, total, api, status } = this.state;
+  return (
+    <div
+      style={{
+        // height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 40,
+        color: '#010101',
+      }}
+    >
+      <Searchbar onSubmit={handleSubmit} />
+      <ImageGallery hits={hits} />
 
-    return (
-      <div
-        style={{
-          // height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: 40,
-          color: '#010101',
-        }}
-      >
-        <Searchbar onSubmit={this.handleSubmit} />
-        <ImageGallery hits={hits} />
+      {Boolean(
+        status === statusCode.DONE && total && !Api.current.isLastPage()
+      ) && <Button onLoad={getMoreInfo} />}
 
-        {Boolean(status === statusCode.DONE && total && !api.isLastPage()) && (
-          <Button onLoad={this.getMoreInfo} />
-        )}
+      {status === statusCode.PENDING && (
+        <Vortex
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="vortex-loading"
+          wrapperStyle={{}}
+          wrapperClass="vortex-wrapper"
+          colors={['red', 'green', 'blue', 'yellow', 'orange', 'purple']}
+        />
+      )}
 
-        {status === statusCode.PENDING && (
-          <Vortex
-            visible={true}
-            height="80"
-            width="80"
-            ariaLabel="vortex-loading"
-            wrapperStyle={{}}
-            wrapperClass="vortex-wrapper"
-            colors={['red', 'green', 'blue', 'yellow', 'orange', 'purple']}
-          />
-        )}
+      {status === statusCode.DONE && !total && <p>Not found</p>}
+    </div>
+  );
+};
 
-        {status === statusCode.DONE && !total && <p>Not found</p>}
-      </div>
-    );
-  }
-}
+export default App;
 
 // опционален вариант: render(if-return/ if-return ...) 19-22 второе видео
