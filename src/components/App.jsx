@@ -21,6 +21,13 @@ const App = () => {
 
   const Api = useRef(null);
 
+  useEffect(() => {
+    if (queryInput === '') {
+      return;
+    }
+    getInfo();
+  }, [queryInput]);
+
   const handleSubmit = e => {
     e.preventDefault();
     if (e.target.input.value.trim()) {
@@ -77,13 +84,6 @@ const App = () => {
       })
       .finally(() => setStatus(statusCode.DONE));
   };
-
-  useEffect(() => {
-    if (queryInput === '') {
-      return;
-    }
-    getInfo();
-  }, [queryInput]);
 
   return (
     <div
