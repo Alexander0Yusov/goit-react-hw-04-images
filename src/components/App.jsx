@@ -30,7 +30,11 @@ const App = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    setQueryInput(e.target.input.value);
+    if (e.target.input.value.trim()) {
+      setQueryInput(e.target.input.value);
+      return;
+    }
+    alert('Please, enter valid request');
   };
 
   const getInfo = () => {
@@ -40,6 +44,12 @@ const App = () => {
     Api.current
       .request()
       .then(({ hits, total }) => {
+        hits = hits.map(({ id, webformatURL, largeImageURL }) => ({
+          id,
+          webformatURL,
+          largeImageURL,
+        }));
+
         Api.current.calculatePages(total);
         setHits(hits);
         setTotal(total);
@@ -59,6 +69,12 @@ const App = () => {
     Api.current
       .request()
       .then(({ hits }) => {
+        hits = hits.map(({ id, webformatURL, largeImageURL }) => ({
+          id,
+          webformatURL,
+          largeImageURL,
+        }));
+
         setHits(prev => [...prev, ...hits]);
         setStatus(statusCode.RESOLVED);
       })

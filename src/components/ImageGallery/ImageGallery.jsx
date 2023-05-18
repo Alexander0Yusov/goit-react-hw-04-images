@@ -60,5 +60,5 @@ ImageGallery.propTypes = {
       webformatURL: PropTypes.string,
       largeImageURL: PropTypes.string,
     })
-  ),
+  ).isRequired,
 };

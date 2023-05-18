@@ -18,7 +18,7 @@ const ImageItem = ({ demoImg, largeImg, clickHandler }) => {
 export default ImageItem;
 
 ImageItem.propTypes = {
-  demoImg: PropTypes.string,
-  largeImg: PropTypes.string,
-  clickHandler: PropTypes.func,
+  demoImg: PropTypes.string.isRequired,
+  largeImg: PropTypes.string.isRequired,
+  clickHandler: PropTypes.func.isRequired,
 };

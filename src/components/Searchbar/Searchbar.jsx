@@ -13,7 +13,7 @@ const Searchbar = ({ onSubmit }) => {
 
   return (
     <header className={css.Searchbar}>
-      <form className={css.SearchForm} onSubmit={e => onSubmit(e)}>
+      <form className={css.SearchForm} onSubmit={onSubmit}>
         <button className={css.SearchFormButton} type="submit">
           <CiSearch />
         </button>
@@ -36,5 +36,5 @@ const Searchbar = ({ onSubmit }) => {
 export default Searchbar;
 
 Searchbar.propTypes = {
-  onSubmit: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
 };
