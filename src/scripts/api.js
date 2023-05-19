@@ -5,7 +5,7 @@ class ApiService {
   static URL = 'https://pixabay.com/api/?';
   #page = 1;
   #pages = 0;
-  #per_page = 4;
+  #per_page = 12;
 
   constructor(query) {
     this.query = query;
