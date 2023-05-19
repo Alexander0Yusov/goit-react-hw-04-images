@@ -25,6 +25,32 @@ const App = () => {
     if (queryInput === '') {
       return;
     }
+
+    const getInfo = () => {
+      Api.current = new ApiService(queryInput);
+      setStatus(statusCode.PENDING);
+
+      Api.current
+        .request()
+        .then(({ hits, total }) => {
+          hits = hits.map(({ id, webformatURL, largeImageURL }) => ({
+            id,
+            webformatURL,
+            largeImageURL,
+          }));
+
+          Api.current.calculatePages(total);
+          setHits(hits);
+          setTotal(total);
+          setStatus(statusCode.RESOLVED);
+        })
+        .catch(er => {
+          setStatus(statusCode.ERROR);
+          console.log(er.message);
+        })
+        .finally(() => setStatus(statusCode.DONE));
+    };
+
     getInfo();
   }, [queryInput]);
 
@@ -35,31 +61,6 @@ const App = () => {
       return;
     }
     alert('Please, enter valid request');
-  };
-
-  const getInfo = () => {
-    Api.current = new ApiService(queryInput);
-    setStatus(statusCode.PENDING);
-
-    Api.current
-      .request()
-      .then(({ hits, total }) => {
-        hits = hits.map(({ id, webformatURL, largeImageURL }) => ({
-          id,
-          webformatURL,
-          largeImageURL,
-        }));
-
-        Api.current.calculatePages(total);
-        setHits(hits);
-        setTotal(total);
-        setStatus(statusCode.RESOLVED);
-      })
-      .catch(er => {
-        setStatus(statusCode.ERROR);
-        console.log(er.message);
-      })
-      .finally(() => setStatus(statusCode.DONE));
   };
 
   const getMoreInfo = () => {
