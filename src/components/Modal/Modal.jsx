@@ -6,12 +6,6 @@ import PropTypes from 'prop-types';
 const modalEl = document.getElementById('modal-root');
 
 const Modal = ({ children, onClose }) => {
-  const handlerKeydown = ev => {
-    if (ev.code === 'Escape') {
-      onClose();
-    }
-  };
-
   const handlerBackdropClick = ev => {
     if (ev.target === ev.currentTarget) {
       onClose();
@@ -19,11 +13,17 @@ const Modal = ({ children, onClose }) => {
   };
 
   useEffect(() => {
+    const handlerKeydown = ev => {
+      if (ev.code === 'Escape') {
+        onClose();
+      }
+    };
+
     window.addEventListener('keydown', handlerKeydown);
     return () => {
       window.removeEventListener('keydown', handlerKeydown);
     };
-  }, []);
+  }, [onClose]);
 
   return createPortal(
     <div onClick={handlerBackdropClick} className={css.Overlay}>
